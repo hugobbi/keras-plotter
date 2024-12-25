@@ -113,7 +113,7 @@ Calculating the orthogonality measure can be done using the `compute_orthogonali
 * `show_dataset`: displays `n` instances of a dataset.
 * `show_instance`: shows a single instance of a dataset.
 * `display_n_digits`: displays `n` instances of a digit in the dataset.
-* `split_array`: splits an array given a percentage (used for train/test split)
+* `split_array`: splits an array given a percentage (used for train/test split).
 * `save_obj`: saves a Python object to a file.
 * `save_obj`: loads a Python object from a file.
 * `data_generator_dvf`: generator used to train or test a double visual fields model in batches.

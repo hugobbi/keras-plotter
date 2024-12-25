@@ -1,86 +1,98 @@
-# mnist-visual-fields
+# keras-plotter
 
-Code to handle creation and visualization of neural networks using Keras. It was made to work with the MNIST dataset, and the neural networks can have one or two visual fields (inputs). When using one visual field, the network recognizes the digit present in that visual field; when using two visual fields, the network recognizes the digit with higher associated attention value.
+Keras Plotter is a Python library designed to visualize neural networks created with Keras. It is particularly useful for models with two inputs receiving competitive stimuli but is versatile enough to support various neural network architectures.
+
+It was originally made to [visualize neural networks receiving competitive stimuli](https://www.researchgate.net/publication/383912312_Visualizing_Information_in_Deep_Neural_Networks_Receiving_Competitive_Stimuli) using the MNIST dataset. For this reason, the tutorial follows this context.
+
+![Plot showing neural network's activations to input.](results/images/reference_plot.png)
 
 ## Dependencies
+
+* python 3.10+
 * tensorflow v2.15.0.post1
 * keras v2.15.0
-* matplotlib v3.8.3
-* numpy v1.26.4
-* attrs v23.2.0
+* matplotlib v3.8.3+
+* numpy v1.26.4+
+* attrs v23.2.0+
 
-## Importing MNIST dataset
+## Usage
 
-It is possible to import the MNIST dataset using `keras.datasets.mnist`.
+An example of usage can be found in `main.ipynb`.
 
-## Creating a model or loading it from a file
+First, it is necessary to clone the repository and install its dependencies.
 
-One use of this program is creating a new model, generating its training and testing data (requires importing MNIST dataset), training it and finally using it for visualization. Another possible use of this program is loading a model from a file, importing the MNIST dataset and then using it for visualization.
+```bash
 
-In either case, it is necessary to import the MNIST dataset.
+git https://github.com/hugobbi/keras-plotter.git
+cd keras-plotter
+pip install -e .
 
-## Creating a new model
+```
 
-### Generating training and testing data
+## Generating dataset
 
-It is first necessary to import the MNIST dataset.
+The dataset can be generated using the `Dataset` class located in the dataset module. The method `build_vf_dataset` builds the visual fields dataset based upon the train and test sets passed to the `Dataset` class.
 
-#### Single visual field
+### Visualizing dataset
 
-Using the function `build_visual_field_data`.
+The `Utils` module has various functions to visualize the dataset. The function `show_dataset` can be used to display `n` entries. To display instances containing a specific digit, the `display_n_digits` function can be used.
 
-#### Double visual field
+## Selecting a model
 
-Using the function `build_double_visual_fields_dataset`.
+A Keras neural network model can be created and trained from scratch or loaded from a file.
+
+### Model definitions
+
+Some model definitions can be found in the `main.ipynb` file.
+
+### Double visual fields model
+
+In order to create and plot a double visual fields model, the left and right visual fields' layers must be added to the model alternately.
 
 ### Training
 
-Having generated the data and compiled the model, training is done using the `fit` method from `keras.Model`. For the purpose of saving RAM, it is recommended to use the `data_generator` functions (specifying single or double visual field network functions).
+For the purpose of saving RAM, it is recommended to use the `data_generator` functions (specifying single or double visual field network functions) located in the `Utils` module.
 
-#### Saving model to file
+### Saving model to file
 
-It is possible to save the trained model to the `models/` path, using the `keras.Model.save` method.
+It is possible to save the trained model to the `models/` path, using the `tf.keras.Model.save` method.
 
-## Loading model from file
+### Loading model from file
 
-The models are stored in the `models/` directory, having a separate directory for each model and its attribute lenses. It is possible to load it, not having to train a new one, using the `keras.models.load_model` method.
+The models are stored in the `models/` directory. It is possible to load them using the `tf.keras.models.load_model` method.
 
-## Visualizing neural network
+## Plotting Keras neural networks
 
-After importing the MNIST dataset and creating or loading a model, the program is ready to plot the model's execution on some input data.
+The plotting of neural newtorks is done using the `NeuralNetworkPlotter` class, located in the `Plotting Neural Networks` module. It receives a trained model to be used for plotting.
+
+Plotting is done using the `plot` method in the `NeuralNetworkPlotter` class. It receives an input and displays the trained neural network's activations and weights for that specific input, also displaying the neural network's architecture.
+
+When the function is executed, an image of the plot will be stored in `results/images/`.
+
+The following layer types are currenty supported by the plotter:
+* Input [x]
+* Dense layers [x]
+* Concatenate layers [x]
+* Convolutional layers [x]
+* Max Pooling [] 
 
 ### Choosing input for visualization
 
-Having chosen one or two digits to use as input data, it is necessary to find their indices in the MNIST dataset (or the dataset containing the digits that will be used). This is done using the `display_n_digits` function. When given a dataset, the labels of that dataset, a digit and an integer `n`, the function displays `n` instances of that digit and their index in the given dataset. This way, it is possible to choose exactly which inputs to use for the neural network, given that the index of these digits is used to reference them in the plotting function.
-
-### Plotting neural network
-
-To plot the neural network, it is used the function `display_double_visual_field_mnist_nn_execution` or `display_single_visual_field_mnist_nn_execution`.  
-(observation: the single visual field function is currently outdated)
-
-There are 4 main obligatory arguments:
-* model: `keras.Model`: the model (trained or loaded from a file) to be plotted
-* data: `np.array`: the dataset from which the input digits for the plot are stored
-* left_vf_digit: `Tuple[int, float]`: the index in the dataset for the digit to be used in the left visual field, as well as its attention value
-* right_vf_digit: `Tuple[int, float]`: the index in the dataset for the digit to be used in the right visual field, as well as its attention value
-
-Other optional but important arguments:
-* output_models: models to be used as attribute lenses for each layer
-* k: number of top digit activations displayed for each attribute lens
-
-There are additional fine-tuning arguments, which are explained inside the plotting function.
-
-When the function is executed, an image of the plot will be stored in `images/`.
+The function `display_n_digits`, located in the `Utils` module can be used to choose an input for the plotter. It displays `n` instances of the digit in the dataset, as well as its index, which is then be passed to the plotter.
 
 ### Attribute lenses
 
-Attribute lenses are used to inspect which digits are represented inside each hidden layer of a model. Just like the models, they can be created or loaded from a file. Also, when created, they can be saved inside a directory in their model's directory. A list of attrtibute lenses for a model can be passed to the plotting neural network function so that, for each hidden layer plotted, the top `k` digits (on activation value) are shown, as well as their corresponding activation value.
+Attribute lenses are used to visualize which classes are being represented inside each trained hidden layer of the model for an input. If generated, the top `k` classes are displayed in the neural network plot. In order to generate and train these attribute lenses, the methods `generate_attribute_lenses` and `train_attribute_lenses` from the `NeuralNetworkPlotter` class are used. It is recommended to use the same training parameters in `train_attribute_lenses` as was used to train the neural network for better results.
 
-### Custom forward pass function
+### Saving plotters
 
-For every forward pass computed in this program, the `compute_forward_pass` function is used. It can be customized to work in different ways for each time the forward pass is computed.
+The `NeuralNetworkPlotter` object can be saved to a file and also loaded from one with the `save_obj` and `load_obj` functions located in the `Utils` module.
 
-## Computing cosine similarity matrices
+## Metrics
+
+The `Metrics` module contains various functions to evaluate the network's internal representations, as used [here](https://www.researchgate.net/publication/383912312_Visualizing_Information_in_Deep_Neural_Networks_Receiving_Competitive_Stimuli).
+
+### Computing cosine similarity matrices
 
 In order to compute the cosine similarity matrix (CSM) for every layer of the model, it is first necesary to compute the prototype for each digit for each layer. This is done by using the `generate_prototypes` function. It is recommended to use the `generate_prototypes_mp` function, as it uses all cores of the CPU to compute the prototypes in parallel.
 
@@ -89,9 +101,20 @@ To finnaly compute the CSMs, use the `compute_cosine_similarity_matrix` function
 ### Visualizing CSM
 
 To visualize the matrices, use the `plot_csm` function. The alternative `plot_csm_interactively` plots the matrix in the same way, the difference being the user can
-choose from an interactive dropbar which layer to plot the CSM from. It is important to note that the CSM is symmetrical, and the values on the lower half are not
+choose from an interactive dropbar which layer to plot the CSM from. It is important to note that the CSM is symmetrical, and the values on the lower left half are not
 computed. To represent them, they are colored black by default, but this can be changed using the `color_not_computed` parameter.
 
 ## Computing orthogonality
 
 Calculating the orthogonality measure can be done using the `compute_orthogonality` function.
+
+## Useful Utils functions
+
+* `show_dataset`: displays `n` instances of a dataset.
+* `show_instance`: shows a single instance of a dataset.
+* `display_n_digits`: displays `n` instances of a digit in the dataset.
+* `split_array`: splits an array given a percentage (used for train/test split)
+* `save_obj`: saves a Python object to a file.
+* `save_obj`: loads a Python object from a file.
+* `data_generator_dvf`: generator used to train or test a double visual fields model in batches.
+* `data_generator_svf`: generator used to train or test a single visual field model in batches.

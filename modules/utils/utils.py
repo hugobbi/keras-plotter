@@ -132,7 +132,7 @@ def display_n_digits(x_data, y_data, digit: int, n: int) -> None:
 
 def plot_loss_accuracy(history):
     plt.plot(history.history["accuracy"], label="Training Accuracy")
-    plt.plot(history.history["loss"], label="Training Accuracy")
+    plt.plot(history.history["loss"], label="Training Loss")
     plt.title("Training Loss and Accuracy")
     plt.xlabel("Epoch")
     plt.legend()
